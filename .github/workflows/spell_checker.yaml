@@ -1,0 +1,40 @@
+name: "Spell checker"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  spelling-check:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11.3"
+
+      - name: Install python requirements
+        run: |
+          python3 --version
+          pip install -r requirements.txt
+
+      - name: Check spelling
+        run: |
+          mkdir artifactory
+          codespell > artifactory/codespell.txt
+
+      - name: Upload to artifactory
+        uses: actions/upload-artifact@v2
+        with:
+          name: codespell-result
+          path: artifactory/codespell.txt
